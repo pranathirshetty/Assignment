@@ -32,7 +32,7 @@ string htmlPage =
     "select, input { width:100%; padding:12px; border-radius:10px; border:1px solid #ccc;"
     " margin-top:5px; margin-bottom:15px; font-size:15px; }"
     "button { width:100%; padding:12px; border:none; border-radius:10px; background:#6a5acd; color:white;"
-    " font-size:17px; cursor:pointer; transition:0.3s; }"
+    " font-size:17px; cursor:pointer; transition:0.3s; margin-bottom:10px;}"
     "button:hover { background:#5145c4; transform:scale(1.03); }"
     "#billBox { margin-top:20px; padding:15px; background:#f7f7ff; border-radius:12px;"
     " box-shadow:0 5px 15px rgba(0,0,0,0.12); }"
@@ -56,33 +56,45 @@ string htmlPage =
     "<label>Quantity</label>"
     "<input id='qty' type='number' placeholder='Enter quantity' value='1' />"
 
+    "<button onclick='addItem()'>Add Item</button>"
     "<button onclick='generateBill()'>Generate Bill</button>"
 
     "<div id='billBox'></div>"
     "</div>"
 
     "<script>"
-    "function generateBill() {"
+    "var cart = [];"
+
+    "function addItem(){"
     " var data = document.getElementById('item').value.split(',');"
     " var name = data[0];"
     " var price = parseFloat(data[1]);"
     " var qty = parseInt(document.getElementById('qty').value);"
+    " cart.push({name, price, qty});"
+    " alert('Item added successfully 😎');"
+    "}"
 
-    " var total = price * qty;"
+    "function generateBill(){"
+    " var total = 0;"
+    " var bill = '<h3>🧾 Bill Summary</h3>';"
+
+    " cart.forEach((item)=>{"
+    "   var itemTotal = item.price * item.qty;"
+    "   total += itemTotal;"
+    "   bill += `<p><b>${item.name}</b> - ${item.qty} × Rs.${item.price} = Rs.${itemTotal}</p>`;"
+    " });"
+
     " var gst = total * 0.05;"
     " var discount = (total > 500) ? total * 0.10 : 0;"
     " var finalAmount = total + gst - discount;"
 
-    " document.getElementById('billBox').innerHTML = "
-    " '<h3>🧾 Bill Summary</h3>' +"
-    " '<p><b>Item:</b> ' + name + '</p>' +"
-    " '<p><b>Price:</b> Rs.' + price + '</p>' +"
-    " '<p><b>Quantity:</b> ' + qty + '</p>' +"
-    " '<p><b>Total:</b> Rs.' + total + '</p>' +"
-    " '<p><b>GST (5%):</b> Rs.' + gst.toFixed(2) + '</p>' +"
-    " '<p><b>Discount:</b> Rs.' + discount.toFixed(2) + '</p>' +"
-    " '<hr>' +"
-    " '<h2>Final Amount: Rs.' + finalAmount.toFixed(2) + '</h2>';"
+    " bill += `<hr>`;"
+    " bill += `<p>Total: Rs.${total}</p>`;"
+    " bill += `<p>GST (5%): Rs.${gst.toFixed(2)}</p>`;"
+    " bill += `<p>Discount: Rs.${discount.toFixed(2)}</p>`;"
+    " bill += `<h2>Final Amount: Rs.${finalAmount.toFixed(2)}</h2>`;"
+
+    " document.getElementById('billBox').innerHTML = bill;"
     "}"
     "</script>"
 
@@ -91,7 +103,6 @@ string htmlPage =
 
 int main()
 {
-
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2, 2), &wsaData);
 
