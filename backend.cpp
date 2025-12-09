@@ -17,89 +17,97 @@ string htmlPage =
     "<html>"
     "<head>"
     "<meta charset='UTF-8' />"
-    "<meta name='viewport' content='width=device-width, initial-scale=1' />"
     "<title>Billing System</title>"
 
     "<style>"
-    "body {"
-    " margin:0; padding:0; background:linear-gradient(135deg,#8ec5fc,#e0c3fc);"
-    " font-family:Arial, sans-serif; height:100vh; display:flex; justify-content:center; align-items:center;"
-    "}"
-    ".card { width:380px; background:white; padding:30px; border-radius:20px;"
-    " box-shadow:0 12px 25px rgba(0,0,0,0.18); }"
-    "h2 { text-align:center; margin-bottom:20px; font-size:28px; color:#222; }"
-    "label { font-weight:600; margin-top:10px; display:block; }"
-    "select, input { width:100%; padding:12px; border-radius:10px; border:1px solid #ccc;"
-    " margin-top:5px; margin-bottom:15px; font-size:15px; }"
-    "button { width:100%; padding:12px; border:none; border-radius:10px; background:#6a5acd; color:white;"
-    " font-size:17px; cursor:pointer; transition:0.3s; margin-bottom:10px;}"
-    "button:hover { background:#5145c4; transform:scale(1.03); }"
-    "#billBox { margin-top:20px; padding:15px; background:#f7f7ff; border-radius:12px;"
-    " box-shadow:0 5px 15px rgba(0,0,0,0.12); }"
+    "body { background:#e6d7ff; font-family:Arial; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }"
+    ".card { width:440px; background:white; padding:25px; border-radius:20px; box-shadow:0 8px 20px rgba(0,0,0,0.2); }"
+    "h2 { text-align:center; margin-bottom:15px; }"
+    "select { width:100%; height:120px; padding:10px; border-radius:10px; margin-bottom:10px; }"
+    ".qtyBox { display:flex; justify-content:space-between; margin-bottom:8px; }"
+    ".qtyBox input{ width:80px; padding:5px; border-radius:8px; }"
+    "button { width:100%; padding:12px; background:#6a5acd; color:white; border:none; border-radius:10px; font-size:17px; cursor:pointer; }"
+    "button:hover { background:#5a48d3; }"
+    "#billBox { margin-top:20px; background:#f4f4ff; padding:15px; border-radius:10px; }"
+    "table { width:100%; border-collapse:collapse; }"
+    "th,td { padding:6px; border-bottom:1px solid #ccc; }"
+    "th { background:#ddd; }"
     "</style>"
-
     "</head>"
+
     "<body>"
-
     "<div class='card'>"
-    "<h2>Billing System</h2>"
+    "<h2>🧾 Billing System</h2>"
 
-    "<label>Select Item</label>"
-    "<select id='item'>"
+    "<label>Select Items (CTRL + Click)</label>"
+    "<select id='item' multiple onchange='renderQtyInputs()'>"
     "<option value='Milk,40'>Milk - Rs.40</option>"
     "<option value='Bread,25'>Bread - Rs.25</option>"
     "<option value='Eggs,60'>Eggs - Rs.60</option>"
-    "<option value='Rice,50'>Rice - Rs.50/kg</option>"
-    "<option value='Sugar,45'>Sugar - Rs.45/kg</option>"
+    "<option value='Rice,50'>Rice - Rs.50</option>"
+    "<option value='Sugar,45'>Sugar - Rs.45</option>"
     "</select>"
 
-    "<label>Quantity</label>"
-    "<input id='qty' type='number' placeholder='Enter quantity' value='1' />"
+    "<div id='qtyFields'></div>"
 
-    "<button onclick='addItem()'>Add Item</button>"
     "<button onclick='generateBill()'>Generate Bill</button>"
-
     "<div id='billBox'></div>"
+
     "</div>"
 
     "<script>"
-    "var cart = [];"
 
-    "function addItem(){"
-    " var data = document.getElementById('item').value.split(',');"
-    " var name = data[0];"
-    " var price = parseFloat(data[1]);"
-    " var qty = parseInt(document.getElementById('qty').value);"
-    " cart.push({name, price, qty});"
-    " alert('Item added successfully 😎');"
+    "function renderQtyInputs(){"
+    " let list=[...document.getElementById('item').selectedOptions];"
+    " let box=document.getElementById('qtyFields');"
+    " box.innerHTML='';"
+
+    " list.forEach(opt=>{"
+    "   let name=opt.value.split(',')[0];"
+    "   box.innerHTML += `"
+    "   <div class='qtyBox'>"
+    "     <span>${name}</span>"
+    "     <input id='qty_${name}' value='1' type='number' min='1'>"
+    "   </div>`;"
+    " });"
     "}"
 
     "function generateBill(){"
-    " var total = 0;"
-    " var bill = '<h3>🧾 Bill Summary</h3>';"
+    " let items=[...document.getElementById('item').selectedOptions];"
+    " if(items.length===0){ alert('⚠ Select at least one item daaa'); return;}"
 
-    " cart.forEach((item)=>{"
-    "   var itemTotal = item.price * item.qty;"
-    "   total += itemTotal;"
-    "   bill += `<p><b>${item.name}</b> - ${item.qty} × Rs.${item.price} = Rs.${itemTotal}</p>`;"
+    " let rows=''; let total=0;"
+
+    " items.forEach(opt=>{"
+    "   let [name,price]=opt.value.split(','); price=parseFloat(price);"
+    "   let qty=parseInt(document.getElementById('qty_'+name).value);"
+    "   let sum=price*qty; total+=sum;"
+    "   rows+=`"
+    "   <tr>"
+    "     <td>${name}</td>"
+    "     <td style='text-align:center;'>${qty}</td>"
+    "     <td>Rs.${sum}</td>"
+    "   </tr>`;"
     " });"
 
-    " var gst = total * 0.05;"
-    " var discount = (total > 500) ? total * 0.10 : 0;"
-    " var finalAmount = total + gst - discount;"
+    " let gst=total*0.05;"
+    " let discount=(total>500)?total*0.10:0;"
+    " let final=total+gst-discount;"
 
-    " bill += `<hr>`;"
-    " bill += `<p>Total: Rs.${total}</p>`;"
-    " bill += `<p>GST (5%): Rs.${gst.toFixed(2)}</p>`;"
-    " bill += `<p>Discount: Rs.${discount.toFixed(2)}</p>`;"
-    " bill += `<h2>Final Amount: Rs.${finalAmount.toFixed(2)}</h2>`;"
-
-    " document.getElementById('billBox').innerHTML = bill;"
+    " document.getElementById('billBox').innerHTML = `"
+    " <h3>Final Bill</h3>"
+    " <table>"
+    "   <tr><th>Item</th><th>Qty</th><th>Total</th></tr>"
+    "   ${rows}"
+    " </table>"
+    " <p><b>Subtotal:</b> Rs.${total}</p>"
+    " <p><b>GST 5%:</b> Rs.${gst.toFixed(2)}</p>"
+    " <p><b>Discount:</b> Rs.${discount.toFixed(2)}</p>"
+    " <h2>Total Payable: Rs.${final.toFixed(2)}</h2>`;"
     "}"
-    "</script>"
 
-    "</body>"
-    "</html>";
+    "</script>"
+    "</body></html>";
 
 int main()
 {
@@ -116,24 +124,20 @@ int main()
     bind(serverSocket, (sockaddr *)&serverAddr, sizeof(serverAddr));
     listen(serverSocket, 5);
 
-    cout << "🔥 Server running at http://localhost:5000\n";
+    cout << "🔥 Server running @ http://localhost:5000\n";
 
     while (true)
     {
         SOCKET client = accept(serverSocket, NULL, NULL);
-
         char buffer[4096];
         int bytes = recv(client, buffer, sizeof(buffer), 0);
 
         if (bytes > 0)
-        {
             send(client, htmlPage.c_str(), (int)htmlPage.size(), 0);
-        }
 
         closesocket(client);
     }
 
-    closesocket(serverSocket);
     WSACleanup();
     return 0;
 }
