@@ -42,19 +42,20 @@ int get_value_from_json(const string &json_str, const string &key)
     }
 }
 
-// --- BILLING LOGIC: Products must be kept in sync with the frontend ---
+// --- BILLING LOGIC: UPDATED PRODUCT LIST TO MATCH FRONTEND IDs and Prices ---
 const vector<pair<int, int>> product_prices = {
-    {1, 100}, // Burger
-    {2, 200}, // Pizza
-    {3, 50}   // Cold Drink
+    {101, 150}, // Cheeseburger
+    {102, 80},  // Large Fries
+    {103, 250}, // Chicken Wings
+    {104, 60},  // Soda Pop
+    {105, 120}  // Choco Shake
 };
 
 int calculate_bill_total(const string &json_body)
 {
     int total_cost = 0;
 
-    // The JSON body is an array of objects: [{"id":1,"name":"Burger","price":100,"qty":1}, {...}]
-    // We will iterate through each item's JSON string in the array
+    // The JSON body is an array of objects: [{"id":101,"name":"Cheeseburger","price":150,"qty":1}, {...}]
 
     size_t start = json_body.find('{');
     while (start != string::npos)
@@ -183,7 +184,7 @@ int main()
             ", \"finalAmount\": " + to_string(finalAmount) + " }";
 
         // For debugging the C++ console:
-        cout << "Request body: " << json_body.substr(0, 100) << "...\n";
+        cout << "Request body: " << json_body.substr(0, min((int)json_body.length(), 100)) << "...\n";
         cout << "Calculated Total: " << total << ", Final: " << finalAmount << "\n";
 
         string response =
