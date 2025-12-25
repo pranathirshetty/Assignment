@@ -39,14 +39,13 @@ useEffect(() => {
       item.id === id ? { ...item, qty: Math.max(0, item.qty + delta) } : item
     ));
   };
-
-  const handlePlaceOrder = () => {
+const handlePlaceOrder = () => {
     const selectedItems = cart.filter(item => item.qty > 0);
     if (selectedItems.length === 0) return alert("Please select an item!");
     
-    // ERROR 5: Safe access to localStorage (window check)
     if (typeof window !== 'undefined') {
       localStorage.setItem("currentOrder", JSON.stringify(selectedItems));
+      // This sends the user to the bill page with the specific type (Table or Counter)
       router.push(`/confirmed?type=${diningType}`);
     }
   };
